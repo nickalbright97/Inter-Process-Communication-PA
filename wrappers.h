@@ -14,6 +14,7 @@
 #include <fcntl.h>
 #include <sys/msg.h>
 #include "shmIPC.h"
+#include "message.h"
 
 pid_t   Fork(void);
 void    unix_error(char *msg) ;

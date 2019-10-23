@@ -6,6 +6,7 @@
 //----------------------------------------------------------------------
 #include "wrappers.h"
 
+
 pid_t Fork(void) {
     pid_t pid;
     pid = fork();
@@ -39,6 +40,7 @@ shmData * Shmat(int shmid, const void *shmaddr, int shmflg) {
        exit(-1);
    }
 }
+
 
 sem_t * Sem_open( const char *name, int oflag, mode_t mode, unsigned int value ) {
    sem_t * sem = sem_open(name, oflag, mode, value);
