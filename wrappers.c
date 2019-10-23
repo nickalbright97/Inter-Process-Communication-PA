@@ -1,14 +1,9 @@
-#include <sys/types.h>
-#include <sys/ipc.h>
-#include <sys/shm.h>
-#include <stdio.h>
-#include <unistd.h>
-#include <stdlib.h>
-#include <sys/wait.h>
-#include <semaphore.h>
-#include <sys/stat.h>    
-#include <sys/msg.h>
-#include <fcntl.h>
+//---------------------------------------------------------------------
+// Assignment :   PA2 - IPC
+// Date :         10/28/19
+// Author :       Nick Albright & Miguel Padilla
+// File Name :    wrappers.c
+//----------------------------------------------------------------------
 #include "wrappers.h"
 
 pid_t Fork(void) {
@@ -35,10 +30,10 @@ int Shmget(key_t key, size_t size, int shmflg) {
     }
 }
 
-void * Shmat(int shmid, const void *shmaddr, int shmflg) {
-    void *p;
-    p = (void *) shmat(shmid, shmaddr, shmflg);
-       if (p == (void*) -1) {
+shmData * Shmat(int shmid, const void *shmaddr, int shmflg) {
+    shmData *p;
+    p = (shmData *) shmat(shmid, shmaddr, shmflg);
+       if (p == (shmData*) -1) {
        printf ("\nFailed to attach shared memory id=%d\n", shmid);
        perror("Reason: ");
        exit(-1);
@@ -106,11 +101,20 @@ int Sem_destroy( sem_t *sem ) {
 int Msgget(key_t key, int msgflg) {
     int r = msgget(key, msgflg);
     if (r == -1) {
-        perror("Msgget failed failed");
+        perror("Msgget failed");
         exit(-1);
     }
 }
 
+
+key_t Ftok(char *pathname, char proj_id) {
+    int key;
+    key = ftok(pathname, proj_id);
+    if (key == -1) {
+        perror("Frok failed");
+        exit(-1);
+    }
+}
 
 
 
