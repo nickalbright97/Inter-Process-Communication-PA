@@ -51,8 +51,10 @@ int main(int argc, char **argv)
     prodQueID = msgget(PROD_MAILBOX_KEY, IPC_CREAT);
     compQueID = msgget(COMP_MAILBOX_KEY, IPC_CREAT);
 
+    
+
     // Remove/destroy IPC things
-   //  Shmdt(&p); need to implement this in wrappers.c
+    shmdt(p);
     
     if (msgctl(prodQueID, IPC_RMID, NULL) == -1) {
 		fprintf(stderr, "Production message queue could not be deleted.\n");

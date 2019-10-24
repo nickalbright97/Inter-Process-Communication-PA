@@ -41,6 +41,15 @@ shmData * Shmat(int shmid, const void *shmaddr, int shmflg) {
    }
 }
 
+int Shmdt(const void *shmaddr) {
+    int r;
+    r = shmdt(shmaddr);
+    if (r == -1) {
+       perror("Failed to delete shared memory");
+       exit(-1);
+    }
+}
+
 
 sem_t * Sem_open( const char *name, int oflag, mode_t mode, unsigned int value ) {
    sem_t * sem = sem_open(name, oflag, mode, value);
