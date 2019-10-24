@@ -8,13 +8,30 @@ int main(int argc, char **argv)
     int capacity;
     int duration;
     int remain; 
-
+    
     FILE *f = fopen("factory.log", "r+");
-  //  use(f);            threw error
+    freopen("factory.log", "a+", stdout);
+    
+    if (argc != 4) { perror("Must have 3 arguments, factory ID, capacity, and duration"); exit(EXIT_FAILURE); }
+
     // add error checking here > like in parent.c
-    factory_ID = atoi(argv[1]);
-    capacity = atoi(argv[2]);
-    duration = atoi(argv[3]);
+    if (sscanf (argv[1], "%i", &factory_ID) != 1) {
+        fprintf(stderr, "error - not an integer");
+    }
+
+    if (sscanf (argv[2], "%i", &capacity) != 1) {
+        fprintf(stderr, "error - not an integer");
+    }
+
+    if (sscanf (argv[3], "%i", &duration) != 1) {
+        fprintf(stderr, "error - not an integer");
+    }
+
+    if (factory_ID < 0 || capacity < 0 || duration < 0) {
+        perror("Invalid integer entry on command line");
+        exit(-1);
+    }
+
 
     int shmid, shmflg;
     key_t shmkey;
@@ -29,6 +46,7 @@ int main(int argc, char **argv)
     
     while(p->parts_remaining > 0) { 
         producing = 0;
+    //mutex?
         if (capacity > p->parts_remaining) 
         {
             producing = p->parts_remaining;
@@ -39,11 +57,12 @@ int main(int argc, char **argv)
             producing = capacity;
             p->parts_remaining -= producing;
         }
+    //release mutex
 
         printf( "Factory Line   %d: Going to make    %d parts in  %d milliSecs\n",
 		 factory_ID, producing, duration);
-	iterations++;
-	partsMadeByMe += producing;
+	    iterations++;
+	    partsMadeByMe += producing;
         usleep(duration);
         
     }
