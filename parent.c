@@ -51,6 +51,26 @@ int main(int argc, char **argv)
     prodQueID = msgget(PROD_MAILBOX_KEY, IPC_CREAT);
     compQueID = msgget(COMP_MAILBOX_KEY, IPC_CREAT);
 
+    pid_t mypid, pid;
+    mypid = getpid();
+    
+    pid = fork();
+	if ( pid < 0 ) 
+	{ /* error occurred */
+		fprintf(stderr, "FORK FAILED");
+		exit(-1);
+	} else if (pid == 0)
+    {
+        printf("\n\t\tthis is the child process with id = %d\n" , getpid() );
+        if ( execlp( "/cs/home/stu/albrigne/Documents/CS361/PAs/PA2/Inter-Process-Communication-PA/factory_line" ,
+                 "factory_line", "1", "10", "10", NULL ) < 0 )
+            perror( "Executing a child failed\n" );
+        exit(0); // not sure if this is needed
+    } else {
+        wait(NULL);
+        printf ("\nMY CHILD HAS COMPLETED\n");
+    }
+    
     
 
     // Remove/destroy IPC things

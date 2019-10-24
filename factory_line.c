@@ -1,14 +1,8 @@
-#include <sys/types.h>
-#include <stdio.h>
-#include <unistd.h>
-#include <stdlib.h>
-#include <sys/wait.h>
-#include <getopt.h>
-
-
+#include "wrappers.h"
 
 int main(int argc, char **argv)
 {
+    printf("This is factory_line process %d", getpid());
     int iterations, partsMadeByMe = 0;
 
     int factory_ID;
@@ -17,7 +11,7 @@ int main(int argc, char **argv)
     int remain; 
 
     FILE *f = fopen("factory.log", "r+");
-    use(f);
+  //  use(f);            threw error
 
     factory_ID = atoi(argv[1]);
     capacity = atoi(argv[2]);
@@ -46,7 +40,8 @@ int main(int argc, char **argv)
             p->parts_remaining -= producing;
         }
 
-        fprintf(f, "Factory Line   %d: Going to make    %d parts in  %d milliSecs", myID, data, duration);
+        fprintf(f, "Factory Line   %d: Going to make    %d parts in  %d milliSecs", factory_ID, 
+            producing, duration);
         usleep(duration);
         
         iterations ++;
@@ -54,7 +49,8 @@ int main(int argc, char **argv)
     }
 
 
-    fprintf(f, "Factory Line   %d: Terminating after making total of    %d parts in  %d iterations",         myID,  partsMadeByMe, iterations);
+    fprintf(f, "Factory Line   %d: Terminating after making total of    %d parts in  %d iterations", 
+        factory_ID,  partsMadeByMe, iterations);
 
 
 
