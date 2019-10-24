@@ -77,6 +77,7 @@ int Sem_unlink( const char *name ) {
     }
 }
 
+
 int Sem_wait( sem_t *sem ) {
     int r = sem_wait(sem);
     if (r == -1) {
@@ -89,6 +90,15 @@ int Sem_post( sem_t *sem ) {
     int r = sem_post(sem);
     if (r == -1) {
         perror("Sem_post failed");
+        exit(-1);
+    }
+}
+
+int Sem_getvalue(sem_t *sem, int *sval) {
+    int r;
+    r = sem_getvalue(sem, sval);
+    if (r == -1) {
+        perror("Sem_getvalue failed");
         exit(-1);
     }
 }

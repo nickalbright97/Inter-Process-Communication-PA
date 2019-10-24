@@ -25,6 +25,7 @@ sem_t  *Sem_open( const char *name, int oflag, mode_t mode, unsigned int value )
 sem_t  *Sem_open2( const char *name, int oflag ) ;
 int     Sem_close( sem_t *sem );
 int     Sem_unlink( const char *name );
+int     Sem_getvalue(sem_t *sem, int *sval);
 int     Sem_wait( sem_t *sem ) ;
 int     Sem_post( sem_t *sem ) ;
 int     Sem_init( sem_t *sem, int pshared, unsigned int value ) ;

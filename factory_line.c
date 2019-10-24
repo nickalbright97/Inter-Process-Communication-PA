@@ -2,8 +2,7 @@
 
 int main(int argc, char **argv)
 {
-    printf("This is factory_line process %d", getpid());
-    int iterations, partsMadeByMe = 0;
+    int iterations, partsMadeByMe, producing = 0;
 
     int factory_ID;
     int capacity;
@@ -12,12 +11,12 @@ int main(int argc, char **argv)
 
     FILE *f = fopen("factory.log", "r+");
   //  use(f);            threw error
-
+    // add error checking here > like in parent.c
     factory_ID = atoi(argv[1]);
     capacity = atoi(argv[2]);
     duration = atoi(argv[3]);
-    
-    int shmid, shmflg; 
+
+    int shmid, shmflg;
     key_t shmkey;
     shmData *p;
     shmflg = S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH | IPC_CREAT;
@@ -27,8 +26,9 @@ int main(int argc, char **argv)
     
     p = Shmat(shmid, NULL, 0);
 
+    
     while(p->parts_remaining > 0) { 
-        int producing;
+        producing = 0;
         if (capacity > p->parts_remaining) 
         {
             producing = p->parts_remaining;
@@ -40,17 +40,20 @@ int main(int argc, char **argv)
             p->parts_remaining -= producing;
         }
 
-        fprintf(f, "Factory Line   %d: Going to make    %d parts in  %d milliSecs", factory_ID, 
-            producing, duration);
+        printf( "Factory Line   %d: Going to make    %d parts in  %d milliSecs\n",
+		 factory_ID, producing, duration);
+	iterations++;
+	partsMadeByMe += producing;
         usleep(duration);
         
-        iterations ++;
-        partsMadeByMe += producing;
     }
 
 
-    fprintf(f, "Factory Line   %d: Terminating after making total of    %d parts in  %d iterations", 
+
+    printf("Factory Line   %d: Terminating after making total of    %d parts in  %d iterations\n", 
         factory_ID,  partsMadeByMe, iterations);
+
+    exit(0);
 
 
 
