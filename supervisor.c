@@ -10,7 +10,9 @@
 int main () 
 {
     int queID; 
-    int LinesActive;
+    int linesActive;
+    int msgRet;
+    
 
 
     // shared memory
@@ -45,12 +47,12 @@ int main ()
         exit(-2) ;      
     }
 
-    if (sscanf (argv[1], "%i", &LinesActive) != 1) {
+    if (sscanf (argv[1], "%i", &linesActive) != 1) {
         fprintf(stderr, "error - not an integer");
     }
 
-    while(LinesActive > 0) {
-        
+    while(linesActive > 0) {
+       //recieve msg if(msgRet = msgrcv(queID, &msg1
 
         printf("Factory Line   %d Produced   %d parts in   %d milliSecs");
         printf("Factory Line   %d Completed its task");
@@ -58,4 +60,11 @@ int main ()
     }
 
     printf("Line   %d made total of %d parts in     %d iterations");
+
+
+
+    shmdt(p);
+    Sem_close(startLine);
+    Sem_unlink("/startLine");
+
 }
