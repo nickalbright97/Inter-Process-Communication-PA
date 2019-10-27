@@ -12,7 +12,29 @@ int main ()
     int queID; 
     int LinesActive;
 
+
+    // shared memory
+    int shmid, shmflg; 
+    key_t shmkey;
+    shmData *p;
+    shmflg = S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH | IPC_CREAT;
+
+    shmkey = Ftok("shmIPC.h", PROJ_ID);
+    shmid = Shmget(shmkey, SHMEM_SIZE, shmflg);
+    p = Shmat(shmid, NULL, 0);
+
+    int semflg, semMode;
+    sem_t *parentSem, *factorySem; 
+    
+    semflg = O_CREAT;
+    semMode = S_IRUSR | S_IWUSR;
+
     freopen("supervisor.log", "a+", stdout);
+
+    parentSem = sem_open("/parent_semaphore", semflg, semMode, 1);
+
+    factorySem = sem_open("/factory_semaphore", semflg, semMode, 1);
+
 
     queID = msgget(PROD_MAILBOX_KEY, IPC_CREAT);
     if ( queID == -1 ) 
