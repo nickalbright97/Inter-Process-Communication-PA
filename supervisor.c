@@ -7,14 +7,10 @@
 
 #include "wrappers.h"
 
-int main () 
+int main (int argc, char **argv) 
 {
-    int queID; 
-    int linesActive;
-    int msgRet;
+    int lineQueID, linesActive; 
     
-
-
     // shared memory
     int shmid, shmflg; 
     key_t shmkey;
@@ -26,45 +22,44 @@ int main ()
     p = Shmat(shmid, NULL, 0);
 
     int semflg, semMode;
-    sem_t *parentSem, *factorySem; 
+    sem_t *parentSem, *factorySem, *startLine; 
     
     semflg = O_CREAT;
     semMode = S_IRUSR | S_IWUSR;
 
-    freopen("supervisor.log", "a+", stdout);
+    parentSem = Sem_open("/parent_semaphore", semflg, semMode, 1);
+    factorySem = Sem_open("/factory_semaphore", semflg, semMode, 1);
+    startLine = Sem_open2("/startLine", 0); // Arg of 0 means sem value is not overwritten
 
-    parentSem = sem_open("/parent_semaphore", semflg, semMode, 1);
-
-    factorySem = sem_open("/factory_semaphore", semflg, semMode, 1);
-
-
-    queID = msgget(PROD_MAILBOX_KEY, IPC_CREAT);
-    if ( queID == -1 ) 
-    {
-        printf("Supervisor Failed to create mailbox. Error code=%d\n" 
-                , errno ) ;
-        perror("Reason");
-        exit(-2) ;      
-    }
-
-    if (sscanf (argv[1], "%i", &linesActive) != 1) {
+    int msgStatus;
+    lineMsg lineMsg;
+    lineQueID = Msgget(LINE_MAILBOX_KEY, IPC_CREAT | 0666);
+    
+    if (sscanf (argv[1], "%i", &linesActive) == -1) {
         fprintf(stderr, "error - not an integer");
     }
 
+    
     while(linesActive > 0) {
-       //recieve msg if(msgRet = msgrcv(queID, &msg1
+        msgStatus = msgrcv(lineQueID, &lineMsg, LINE_MSG_SIZE, 0, 0);
+        if (msgStatus == -1) {
+             perror("Line Message reception failed in supervisor process");
+             exit(-1);
+        }
+        if (lineMsg.msgTyp == 0) {
+             printf("Factory Line   %d Produced   %d parts in   %d milliSecs\n", lineMsg.line_id, 
+                    lineMsg.num_parts, lineMsg.duration);
+        } else if (lineMsg.msgTyp == 1) {
+            printf("Factory Line   %d Completed its task\n", lineMsg.line_id);
+            linesActive--;
+        }
 
-        printf("Factory Line   %d Produced   %d parts in   %d milliSecs");
-        printf("Factory Line   %d Completed its task");
 
     }
-
-    printf("Line   %d made total of %d parts in     %d iterations");
-
 
 
     shmdt(p);
     Sem_close(startLine);
-    Sem_unlink("/startLine");
+    // Close other semaphores? - close semaphore in every process, unlink once
 
 }

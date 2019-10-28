@@ -42,48 +42,71 @@ int main(int argc, char **argv)
     p->parts_remaining = order_size;
 
     // message queue
-    productionMsg msgP;
-    completionMsg msgC;
-    int prodQueID;
-    int compQueID;
-    int msgStatus;
+    lineMsg msgP;
+    int lineQueID, msgStatus;
  
-    prodQueID = msgget(PROD_MAILBOX_KEY, IPC_CREAT);
-    compQueID = msgget(COMP_MAILBOX_KEY, IPC_CREAT);
+    lineQueID = Msgget(LINE_MAILBOX_KEY, IPC_CREAT | 0666);
 
-    pid_t mypid, pid;
+    pid_t mypid, pid, superID;
     mypid = getpid();
     pid = mypid;
 
     int semflg, semmode;
-    sem_t *startLine;
+    sem_t *startLine, *lineOutput;
     semflg = O_CREAT;
     semmode = S_IRUSR | S_IWUSR;
     startLine = Sem_open("/startLine", semflg, semmode, 1);
+    lineOutput = Sem_open("/lineOutput", semflg, semmode, 1);
 
     printf("PARENT: Will Manufacture an Order of Size = %d parts\n", order_size);
     printf("Creating %d Factory Lines\n", factory_lines);
     
     int factoryID = 0;
+    int fd_line = open("factory.log", O_WRONLY | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
+    if (fd_line == -1)
+    {
+	    perror("Opening Factory Line's log file failed");
+    	exit(-1);
+    }
+    // Make factory lines
     for (int i = 1; i < factory_lines + 1; i++) {
-        if (pid != 0) { pid = fork(); }
-        if ( pid < 0 ) 
-        { /* error occurred */
-            fprintf(stderr, "FORK FAILED");
-	        exit(-1);
-        } else if (pid == 0 )
-        {
-            int semVal = 0;
-            Sem_getvalue(startLine, &semVal);
-            Sem_post(startLine);
-            char str[2];
-            if (sprintf(str, "%d", semVal) < 0) {
-              fprintf(stderr, "error - not an integer");
-            }
-	        if (execlp("/cs/home/stu/albrigne/Documents/CS361/PAs/PA2/Inter-Process-Communication-PA/line.out",
+        if (pid != 0) { pid = Fork(); }
+    }
+    // Child process
+    if (pid == 0 )
+    {
+        dup2(fd_line, 1);
+        int semVal = 0;
+        Sem_getvalue(startLine, &semVal);
+        Sem_post(startLine);
+        char str[2];
+        if (sprintf(str, "%d", semVal) < 0) {
+          fprintf(stderr, "error - not an integer");
+        }
+	    if (execlp("./factory_line",
 		    "line.out", str, "10", "80000", NULL) != -1) { perror("Executing a child failed\n"); }
-            printf("\n\t\tchild process has returned to parent\n");
-        } 
+    } 
+
+    // Supervisor
+    superID = Fork();
+    if (superID == 0)
+    {
+	    int fd_sup = open("supervisor.log", O_WRONLY | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
+	    if (fd_sup == -1)
+	    {
+	        perror("Opening Supervisor's log file failed");
+    	    exit(-1);
+    	}
+    	dup2( fd_sup, 1);
+        char strS[2];
+    	if (snprintf( strS, sizeof(strS), "%d", factory_lines) < 0) {
+            perror("Super snprint has failed");
+            exit(-1);
+    	}
+    	if (execlp("./supervisor", "super.out", strS, NULL) < 0) {
+    	    perror("PARENT: execlp Supervisor Failed");
+	        exit(-1);
+    	}
     }
 
     pid_t wpid;
@@ -98,29 +121,18 @@ int main(int argc, char **argv)
     shmdt(p);
     Sem_close(startLine);
     Sem_unlink("/startLine");
+    Sem_close(lineOutput);
+    Sem_unlink("/lineOutput");
 
-
-    /* 
-    if (msgctl(prodQueID, IPC_RMID, NULL) == -1) {
-		fprintf(stderr, "Production message queue could not be deleted.\n");
-		exit(EXIT_FAILURE);
+    if (getpid() == mypid) {
+      if (msgctl(lineQueID, IPC_RMID, NULL) == -1) {
+	    	fprintf(stderr, "Line message queue could not be deleted.\n");
+	    	exit(EXIT_FAILURE);
+      }
     }
-    if (msgctl(compQueID, IPC_RMID, NULL) == -1) {
-		fprintf(stderr, "Completion message queue could not be deleted.\n");
-		exit(EXIT_FAILURE);
-    }
-   */ 
+   
     
-
     return EXIT_SUCCESS;
     
-    
-
-    
-
-
-
-
-
 
 }
