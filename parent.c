@@ -118,16 +118,16 @@ int main(int argc, char **argv)
         // Tell supervisor lines are done
         Sem_post(printReport);
 
-	// Wait for supervisor to finish
+	    // Wait for supervisor to finish
         if (waitpid(superID, NULL, 0) == -1 ) { perror("supervisor wait failed"); exit(-1); }
-        printf("PARENT: Shutting Down Factory Lines");
+        printf("PARENT: Shutting Down Factory Lines\n");
 
         pid_t wpid;
         int status = 0;
         // This is not a final solution > just making sure all processes finish
-	for (int i = 0; i < factory_lines; i++) {
-	    if (wait(NULL) == -1) { perror("line wait failed"); exit(-1); }
-	}
+	    for (int i = 0; i < factory_lines; i++) {
+	        if (wait(NULL) == -1) { perror("line wait failed"); exit(-1); }
+	    }
 
         // Remove/destroy IPC things
         shmdt(p);

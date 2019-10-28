@@ -1,13 +1,40 @@
+Factory Line   3 Produced   10 parts in   80000 milliSecs
+Factory Line   4 Produced   10 parts in   80000 milliSecs
+Factory Line   5 Produced   10 parts in   80000 milliSecs
 Factory Line   2 Produced   10 parts in   80000 milliSecs
 Factory Line   1 Produced   10 parts in   80000 milliSecs
-Factory Line   2 Produced   10 parts in   80000 milliSecs
-Factory Line   1 Produced   10 parts in   80000 milliSecs
-Factory Line   2 Produced   10 parts in   80000 milliSecs
-Factory Line   1 Produced   10 parts in   80000 milliSecs
-Factory Line   2 Produced   10 parts in   80000 milliSecs
-Factory Line   1 Produced   8 parts in   80000 milliSecs
+Factory Line   3 Produced   10 parts in   80000 milliSecs
+Factory Line   5 Produced   10 parts in   80000 milliSecs
+Factory Line   4 Produced   8 parts in   80000 milliSecs
 Factory Line   2 Completed its task
-Factory Line   1 Completed its task
+lineStr: Line    2 made total of 10 parts in     1 iteration
+ 
 
+report: Line    2 made total of 10 parts in     1 iteration
+ 
+size of lineStr: 82 size of report: 410Factory Line   1 Completed its task
+lineStr: Line    1 made total of 10 parts in     1 iteration
+ 
+
+report: Line    2 made total of 10 parts in     1 iteration
+ 
+size of lineStr: 82 size of report: 410Factory Line   3 Completed its task
+lineStr: Line    3 made total of 10 parts in     2 iteration
+ 
+
+report: Line    2 made total of 10 parts in     1 iteration
+ 
+size of lineStr: 82 size of report: 410Factory Line   4 Completed its task
+lineStr: Line    4 made total of 8 parts in     2 iteration
+ 
+
+report: Line    2 made total of 10 parts in     1 iteration
+ 
+size of lineStr: 82 size of report: 410Factory Line   5 Completed its task
+lineStr: Line    5 made total of 10 parts in     2 iteration
+ 
+
+report: Line    2 made total of 10 parts in     1 iteration
+ 
+size of lineStr: 82 size of report: 410
 ****** SUPER: Final Report ******
-18503

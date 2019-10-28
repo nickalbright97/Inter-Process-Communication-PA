@@ -39,7 +39,12 @@ int main (int argc, char **argv)
         fprintf(stderr, "error - not an integer");
     }
 
+    char report[FINAL_MESSAGE_LEN * linesActive];
+    char lineStr[FINAL_MESSAGE_LEN];
+
     
+    int reportPos = 0;
+    int linePos = 0;
     while(linesActive > 0) {
         msgStatus = msgrcv(lineQueID, &lineMsg, LINE_MSG_SIZE, 0, 0);
         if (msgStatus == -1) {
@@ -52,6 +57,17 @@ int main (int argc, char **argv)
         } else if (lineMsg.msgTyp == 1) {
             printf("Factory Line   %d Completed its task\n", lineMsg.line_id);
             linesActive--;
+            snprintf(lineStr, FINAL_MESSAGE_LEN, "Line    %d made total of %d parts in     %d iterations", 
+                        lineMsg.line_id, lineMsg.num_parts, lineMsg.iterations);
+            lineStr[ strlen(lineStr)-1 ] = '\n' ; // get rid of the new line character
+            for (int i = reportPos; i < reportPos + FINAL_MESSAGE_LEN; i++) {
+                report[i] = lineStr[linePos];
+                linePos++;
+            }
+            linePos = 0;
+            reportPos += FINAL_MESSAGE_LEN;
+      //      printf("lineStr: %s \n\n", lineStr);
+      //      printf("report: %s \n", report);
         }
     }
     // Tell parent lines are done
@@ -59,7 +75,7 @@ int main (int argc, char **argv)
     // Wait for parent to tell us to print report
     Sem_wait(printReport);
     printf("\n****** SUPER: Final Report ******\n");
-    printf("%d", getpid());
+    
 
     shmdt(p);
     Sem_close(startLine);

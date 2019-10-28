@@ -21,5 +21,5 @@ typedef struct {
 } lineMsg ;
 
 #define LINE_MSG_SIZE ( sizeof(lineMsg) )
-
+#define FINAL_MESSAGE_LEN 82
 

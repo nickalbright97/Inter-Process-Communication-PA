@@ -1,10 +1,13 @@
 Factory Line   2: Going to make    10 parts in  80000 milliSecs
-Factory Line   2: Going to make    10 parts in  80000 milliSecs
-Factory Line   2: Going to make    10 parts in  80000 milliSecs
-Factory Line   2: Going to make    10 parts in  80000 milliSecs
-Factory Line   2: Terminating after making total of    40 parts in  4 iterations
+Factory Line   2: Terminating after making total of    10 parts in  1 iterations
 Factory Line   1: Going to make    10 parts in  80000 milliSecs
-Factory Line   1: Going to make    10 parts in  80000 milliSecs
-Factory Line   1: Going to make    10 parts in  80000 milliSecs
-Factory Line   1: Going to make    8 parts in  80000 milliSecs
-Factory Line   1: Terminating after making total of    38 parts in  4 iterations
+Factory Line   1: Terminating after making total of    10 parts in  1 iterations
+Factory Line   3: Going to make    10 parts in  80000 milliSecs
+Factory Line   3: Going to make    10 parts in  80000 milliSecs
+Factory Line   3: Terminating after making total of    20 parts in  2 iterations
+Factory Line   4: Going to make    10 parts in  80000 milliSecs
+Factory Line   4: Going to make    8 parts in  80000 milliSecs
+Factory Line   4: Terminating after making total of    18 parts in  2 iterations
+Factory Line   5: Going to make    10 parts in  80000 milliSecs
+Factory Line   5: Going to make    10 parts in  80000 milliSecs
+Factory Line   5: Terminating after making total of    20 parts in  2 iterations

@@ -2,7 +2,9 @@
 
 int main(int argc, char **argv)
 {
-    int iterations, partsMadeByMe, producing = 0;
+    int producing = 0;
+    int iterations = 0;
+    int partsMadeByMe = 0;
 
     int factory_ID;
     int capacity;
@@ -57,7 +59,7 @@ int main(int argc, char **argv)
     lineOutput = Sem_open2("/lineOutput", 0);
     
     while(p->parts_remaining > 0) { 
-        Sem_wait(lineOutput);
+        Sem_wait(lineOutput); // wait
         producing = 0;
         if (capacity > p->parts_remaining) 
         {
@@ -72,16 +74,17 @@ int main(int argc, char **argv)
 
         lineMsg.msgTyp = 0;
         lineMsg.num_parts = producing;
+
+        printf( "Factory Line   %d: Going to make    %d parts in  %d milliSecs\n",
+		 factory_ID, producing, duration);
+        Sem_post(lineOutput); // post
+
         msgStatus = msgsnd(lineQueID, &lineMsg, LINE_MSG_SIZE, 0);
         if (msgStatus == -1) {
             perror("Production msg send failed in factory line process");
             exit(-1);
         }
-   
-        printf( "Factory Line   %d: Going to make    %d parts in  %d milliSecs\n",
-		 factory_ID, producing, duration);
-        
-        Sem_post(lineOutput);
+       
 	    iterations++;
 	    partsMadeByMe += producing;
         usleep(duration);

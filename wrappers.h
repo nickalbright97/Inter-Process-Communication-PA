@@ -13,6 +13,8 @@
 #include <sys/msg.h>
 #include <fcntl.h>
 #include <sys/msg.h>
+#include <errno.h>
+#include <string.h>
 #include "shmIPC.h"
 #include "message.h"
 
