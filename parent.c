@@ -4,7 +4,7 @@
 // Author :       Nick Albright & Miguel Padilla
 // File Name :    parent.c
 //----------------------------------------------------------------------
-
+#include <time.h>
 #include "wrappers.h"
 
 int main(int argc, char **argv)
@@ -70,13 +70,20 @@ int main(int argc, char **argv)
 	    perror("Opening Factory Line's log file failed");
     	exit(-1);
     }
+
+    int randCap;
+    int randDur;
+    srandom(time(NULL));
     // Make factory lines
     for (int i = 1; i < factory_lines + 1; i++) {
+        randCap = random() %41 + 10;
+        randDur = random() % 701 + 500;
         if (pid != 0) { pid = Fork(); }
-    }
+        
     // Child process
     if (pid == 0 )
     {
+        printf("PARENT: Factory Line    %d Created with Capacity %d Duration %d\n", i, randCap, randDur);
         dup2(fd_line, 1);
         int semVal = 0;
         Sem_getvalue(startLine, &semVal);
@@ -85,10 +92,14 @@ int main(int argc, char **argv)
         if (sprintf(str, "%d", semVal) < 0) {
           fprintf(stderr, "error - not an integer");
         }
+        char buf1[50];
+        snprintf(buf1, sizeof(buf1), "%d", randCap);
+        char buf2[50];
+        snprintf(buf2, sizeof(buf2), "%d", randDur);
 	    if (execlp("./factory_line",
-		    "line.out", str, "10", "80000", NULL) != -1) { perror("Executing a child failed\n"); }
+		    "line.out", str, buf1, buf2, NULL) != -1) { perror("Executing a child failed\n"); }
     } 
-
+    }
     // Supervisor
     superID = Fork();
     if (superID == 0)
