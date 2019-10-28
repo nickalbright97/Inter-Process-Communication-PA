@@ -3,4 +3,6 @@ all:
 	gcc -pthread wrappers.c parent.c -o parent
 	gcc -pthread wrappers.c supervisor.c -o supervisor
 clean:
-	rm *.o ;
+	rm -f *.o parent factory supervisor *.log;
+	ipcrm -a;
+	rm -f /dev/shm/sem*albrigne;
