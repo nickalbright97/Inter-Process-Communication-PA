@@ -22,13 +22,13 @@ int main (int argc, char **argv)
     p = Shmat(shmid, NULL, 0);
 
     int semflg, semMode;
-    sem_t *parentSem, *factorySem, *startLine; 
+    sem_t *linesDone, *printReport, *startLine; 
     
     semflg = O_CREAT;
     semMode = S_IRUSR | S_IWUSR;
 
-    parentSem = Sem_open("/parent_semaphore", semflg, semMode, 1);
-    factorySem = Sem_open("/factory_semaphore", semflg, semMode, 1);
+    linesDone = Sem_open("/linesDone", semflg, semMode, 0);
+    printReport = Sem_open("/printReport", semflg, semMode, 0);
     startLine = Sem_open2("/startLine", 0); // Arg of 0 means sem value is not overwritten
 
     int msgStatus;
@@ -53,13 +53,18 @@ int main (int argc, char **argv)
             printf("Factory Line   %d Completed its task\n", lineMsg.line_id);
             linesActive--;
         }
-
-
     }
-
+    // Tell parent lines are done
+    Sem_post(linesDone);
+    // Wait for parent to tell us to print report
+    Sem_wait(printReport);
+    printf("\n****** SUPER: Final Report ******\n");
+    printf("%d", getpid());
 
     shmdt(p);
     Sem_close(startLine);
+    Sem_close(linesDone);
+    Sem_close(printReport);
     // Close other semaphores? - close semaphore in every process, unlink once
 
 }

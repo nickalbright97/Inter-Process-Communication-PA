@@ -52,11 +52,13 @@ int main(int argc, char **argv)
     pid = mypid;
 
     int semflg, semmode;
-    sem_t *startLine, *lineOutput;
+    sem_t *startLine, *lineOutput, *linesDone, *printReport;
     semflg = O_CREAT;
     semmode = S_IRUSR | S_IWUSR;
     startLine = Sem_open("/startLine", semflg, semmode, 1);
     lineOutput = Sem_open("/lineOutput", semflg, semmode, 1);
+    linesDone = Sem_open("/linesDone", semflg, semmode, 0);
+    printReport = Sem_open("/printReport", semflg, semmode, 0);
 
     printf("PARENT: Will Manufacture an Order of Size = %d parts\n", order_size);
     printf("Creating %d Factory Lines\n", factory_lines);
@@ -109,30 +111,42 @@ int main(int argc, char **argv)
     	}
     }
 
-    pid_t wpid;
-    int status = 0;
-    // This is not a final solution > just making sure all processes finish
-    while ((wpid = wait(&status)) > 0);
-    printf("children are done\n");
-
-    
-
-    // Remove/destroy IPC things
-    shmdt(p);
-    Sem_close(startLine);
-    Sem_unlink("/startLine");
-    Sem_close(lineOutput);
-    Sem_unlink("/lineOutput");
-
     if (getpid() == mypid) {
-      if (msgctl(lineQueID, IPC_RMID, NULL) == -1) {
+        // Wait for supervisor to tell us lines are done
+        Sem_wait(linesDone);
+        printf("PARENT: Supervisor says all lines have completed\n");
+        // Tell supervisor lines are done
+        Sem_post(printReport);
+
+	// Wait for supervisor to finish
+        if (waitpid(superID, NULL, 0) == -1 ) { perror("supervisor wait failed"); exit(-1); }
+        printf("PARENT: Shutting Down Factory Lines");
+
+        pid_t wpid;
+        int status = 0;
+        // This is not a final solution > just making sure all processes finish
+	for (int i = 0; i < factory_lines; i++) {
+	    if (wait(NULL) == -1) { perror("line wait failed"); exit(-1); }
+	}
+
+        // Remove/destroy IPC things
+        shmdt(p);
+        Sem_close(startLine);
+        Sem_unlink("/startLine");
+        Sem_close(lineOutput);
+        Sem_unlink("/lineOutput");
+        Sem_close(linesDone);
+        Sem_unlink("/linesDone");
+        Sem_close(printReport);
+        Sem_unlink("/printReport");
+
+        if (msgctl(lineQueID, IPC_RMID, NULL) == -1) {
 	    	fprintf(stderr, "Line message queue could not be deleted.\n");
 	    	exit(EXIT_FAILURE);
-      }
+        }
+
     }
-   
-    
+
     return EXIT_SUCCESS;
-    
 
 }
