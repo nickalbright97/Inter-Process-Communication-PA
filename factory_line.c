@@ -31,8 +31,8 @@ int main(int argc, char **argv)
         exit(-1);
     }
 
-    sem_t *termLine;
-    termLine = Sem_open2("/termLine", 0);
+    //sem_t *termLine;
+    //termLine = Sem_open2("/termLine", 0);
 
     lineMsg lineMsg;
     pid_t mypid = getpid();
@@ -105,7 +105,7 @@ int main(int argc, char **argv)
          perror("Completion msg send failed in factory line process");
          exit(-1);
     }
-    Sem_wait(termLine);
+    //Sem_wait(termLine);
     printf("Factory Line   %d: Terminating after making total of    %d parts in  %d iterations\n", 
          factory_ID,  partsMadeByMe, iterations);
 

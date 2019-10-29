@@ -56,7 +56,7 @@ int main(int argc, char **argv)
     semflg = O_CREAT;
     semmode = S_IRUSR | S_IWUSR;
     startLine = Sem_open("/startLine", semflg, semmode, 1);
-    termLine = Sem_open("/termLine", semflg, semmode, 0);
+    //termLine = Sem_open("/termLine", semflg, semmode, 0);
     lineOutput = Sem_open("/lineOutput", semflg, semmode, 1);
     linesDone = Sem_open("/linesDone", semflg, semmode, 0);
     printReport = Sem_open("/printReport", semflg, semmode, 0);
@@ -134,7 +134,7 @@ int main(int argc, char **argv)
 
         Sem_post(printReport);
         for (int i = 0; i < factory_lines; i++ )
-        Sem_post(termLine);
+        //Sem_post(termLine);
 	    // Wait for supervisor to finish
         if (waitpid(superID, NULL, 0) == -1 ) { perror("supervisor wait failed"); exit(-1); }
         printf("PARENT: Shutting Down Factory Lines\n");
