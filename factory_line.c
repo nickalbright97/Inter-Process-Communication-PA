@@ -31,6 +31,9 @@ int main(int argc, char **argv)
         exit(-1);
     }
 
+    sem_t *termLine;
+    termLine = Sem_open2("/termLine", 0);
+
     lineMsg lineMsg;
     pid_t mypid = getpid();
     if (mypid < 0) { perror("line pid error"); exit(-1); }
@@ -59,6 +62,7 @@ int main(int argc, char **argv)
     lineOutput = Sem_open2("/lineOutput", 0);
     
     while(p->parts_remaining > 0) { 
+
         Sem_wait(lineOutput); // wait
         producing = 0;
         if (capacity > p->parts_remaining) 
@@ -74,9 +78,10 @@ int main(int argc, char **argv)
 
         lineMsg.msgTyp = 0;
         lineMsg.num_parts = producing;
-
+                
         printf( "Factory Line   %d: Going to make    %d parts in  %d milliSecs\n",
 		 factory_ID, producing, duration);
+        fflush(NULL);
         Sem_post(lineOutput); // post
 
         msgStatus = msgsnd(lineQueID, &lineMsg, LINE_MSG_SIZE, 0);
@@ -93,12 +98,14 @@ int main(int argc, char **argv)
     lineMsg.msgTyp = 1;
     lineMsg.parts_made = partsMadeByMe;
     lineMsg.iterations = iterations;
-      
+
+
     msgStatus = msgsnd(lineQueID, &lineMsg, LINE_MSG_SIZE, 0);
     if (msgStatus == -1) {
          perror("Completion msg send failed in factory line process");
          exit(-1);
     }
+    Sem_wait(termLine);
     printf("Factory Line   %d: Terminating after making total of    %d parts in  %d iterations\n", 
          factory_ID,  partsMadeByMe, iterations);
 

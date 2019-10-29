@@ -52,10 +52,11 @@ int main(int argc, char **argv)
     pid = mypid;
 
     int semflg, semmode;
-    sem_t *startLine, *lineOutput, *linesDone, *printReport;
+    sem_t *startLine, *lineOutput, *linesDone, *printReport, *termLine;
     semflg = O_CREAT;
     semmode = S_IRUSR | S_IWUSR;
     startLine = Sem_open("/startLine", semflg, semmode, 1);
+    termLine = Sem_open("/termLine", semflg, semmode, 0);
     lineOutput = Sem_open("/lineOutput", semflg, semmode, 1);
     linesDone = Sem_open("/linesDone", semflg, semmode, 0);
     printReport = Sem_open("/printReport", semflg, semmode, 0);
@@ -80,26 +81,27 @@ int main(int argc, char **argv)
         randDur = random() % 701 + 500;
         if (pid != 0) { pid = Fork(); }
         
-    // Child process
-    if (pid == 0 )
-    {
-        printf("PARENT: Factory Line    %d Created with Capacity %d Duration %d\n", i, randCap, randDur);
-        dup2(fd_line, 1);
-        int semVal = 0;
-        Sem_getvalue(startLine, &semVal);
-        Sem_post(startLine);
-        char str[2];
-        if (sprintf(str, "%d", semVal) < 0) {
-          fprintf(stderr, "error - not an integer");
-        }
-        char buf1[50];
-        snprintf(buf1, sizeof(buf1), "%d", randCap);
-        char buf2[50];
-        snprintf(buf2, sizeof(buf2), "%d", randDur);
-	    if (execlp("./factory_line",
-		    "line.out", str, buf1, buf2, NULL) != -1) { perror("Executing a child failed\n"); }
-    } 
+        // Child process
+        if (pid == 0 )
+        {
+            printf("PARENT: Factory Line    %d Created with Capacity %d Duration %d\n", i, randCap, randDur);
+            dup2(fd_line, 1);
+            int semVal = 0;
+            Sem_getvalue(startLine, &semVal);
+            Sem_post(startLine);
+            char str[2];
+            if (sprintf(str, "%d", semVal) < 0) {
+              fprintf(stderr, "error - not an integer");
+            }
+            char buf1[50];
+            snprintf(buf1, sizeof(buf1), "%d", randCap);
+            char buf2[50];
+            snprintf(buf2, sizeof(buf2), "%d", randDur);
+	        if (execlp("./factory_line",
+		        "line.out", str, buf1, buf2, NULL) != -1) { perror("Executing a child failed\n"); }
+        } 
     }
+
     // Supervisor
     superID = Fork();
     if (superID == 0)
@@ -122,13 +124,17 @@ int main(int argc, char **argv)
     	}
     }
 
+
     if (getpid() == mypid) {
+
         // Wait for supervisor to tell us lines are done
         Sem_wait(linesDone);
         printf("PARENT: Supervisor says all lines have completed\n");
         // Tell supervisor lines are done
-        Sem_post(printReport);
 
+        Sem_post(printReport);
+        for (int i = 0; i < factory_lines; i++ )
+        Sem_post(termLine);
 	    // Wait for supervisor to finish
         if (waitpid(superID, NULL, 0) == -1 ) { perror("supervisor wait failed"); exit(-1); }
         printf("PARENT: Shutting Down Factory Lines\n");
